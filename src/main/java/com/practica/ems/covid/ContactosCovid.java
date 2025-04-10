@@ -115,24 +115,9 @@ public class ContactosCovid {
 				String[] datas = dividirEntrada(data.trim());
 				for (String linea : datas) {
 					String datos[] = this.dividirLineaData(linea);
-					if (!datos[0].equals("PERSONA") && !datos[0].equals("LOCALIZACION")) {
-						throw new EmsInvalidTypeException();
-					}
-					if (datos[0].equals("PERSONA")) {
-						if (datos.length != Constantes.MAX_DATOS_PERSONA) {
-							throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
-						}
-						this.poblacion.addPersona(this.crearPersona(datos));
-					}
-					if (datos[0].equals("LOCALIZACION")) {
-						if (datos.length != Constantes.MAX_DATOS_LOCALIZACION) {
-							throw new EmsInvalidNumberOfDataException(
-									"El número de datos para LOCALIZACION es menor de 6" );
-						}
-						PosicionPersona pp = this.crearPosicionPersona(datos);
-						this.localizacion.addLocalizacion(pp);
-						this.listaContactos.insertarNodoTemporal(pp);
-					}
+					if(datos[0].equals("LOCALIZACION")) crearLocalizacion(datos);
+					else if (datos[0].equals("PERSONA")) aniadirPersona(datos);
+					else throw new EmsInvalidTypeException();
 				}
 
 			}
@@ -140,18 +125,43 @@ public class ContactosCovid {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			cerrarFichero(fr);
 			// En el finally cerramos el fichero, para asegurarnos
 			// que se cierra tanto si todo va bien como si salta
 			// una excepcion.
-			try {
-				if (null != fr) {
-					fr.close();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
+
 		}
 	}
+
+	public void aniadirPersona(String[] datos) throws EmsInvalidNumberOfDataException, EmsDuplicatePersonException {
+		if(datos.length != Constantes.MAX_DATOS_PERSONA) throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
+		else this.poblacion.addPersona(this.crearPersona(datos));
+
+	}
+
+	public void crearLocalizacion(String[] datos) throws EmsInvalidNumberOfDataException, EmsDuplicateLocationException {
+		if(datos.length != Constantes.MAX_DATOS_LOCALIZACION) throw new EmsInvalidNumberOfDataException("El número de datos para LOCALIZACION es menor de 6" );
+		else
+		{
+			PosicionPersona pp = this.crearPosicionPersona(datos);
+			this.localizacion.addLocalizacion(pp);
+			this.listaContactos.insertarNodoTemporal(pp);
+		}
+	}
+
+	public void cerrarFichero(FileReader fr)
+	{
+		try {
+			if (null != fr) {
+				fr.close();
+			}
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
+
+	}
+
+
 	public int findPersona(String documento) throws EmsPersonNotFoundException {
 		int pos;
 		try {
