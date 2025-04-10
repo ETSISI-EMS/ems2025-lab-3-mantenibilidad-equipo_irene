@@ -1,4 +1,3 @@
-
 :point_right: PUT YOUR CI BADGE HERE
 
 # EMS-lab3 Maintainability
