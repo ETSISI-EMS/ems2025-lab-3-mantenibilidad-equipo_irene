@@ -110,16 +110,9 @@ public class ContactosCovid {
 			 * tiene el tipo PERSONA o LOCALIZACION y cargo la línea de datos en la 
 			 * lista correspondiente. Sino viene ninguno de esos tipos lanzo una excepción
 			 */
-			String data;
-			while ((data = br.readLine()) != null) {
-				String[] datas = dividirEntrada(data.trim());
-				for (String linea : datas) {
-					String datos[] = this.dividirLineaData(linea);
-					if(datos[0].equals("LOCALIZACION")) crearLocalizacion(datos);
-					else if (datos[0].equals("PERSONA")) aniadirPersona(datos);
-					else throw new EmsInvalidTypeException();
-				}
-
+			String linea;
+			while ((linea = br.readLine()) != null) {
+				procesarLineas(dividirEntrada(linea.trim()));
 			}
 
 		} catch (Exception e) {
@@ -130,6 +123,26 @@ public class ContactosCovid {
 			// que se cierra tanto si todo va bien como si salta
 			// una excepcion.
 
+		}
+	}
+
+	private void procesarLineas(String[] lineas) throws EmsInvalidTypeException, EmsDuplicatePersonException, EmsInvalidNumberOfDataException, EmsDuplicateLocationException {
+		for (String linea : lineas) {
+			procesarLinea(linea);
+		}
+	}
+
+	private void procesarLinea(String linea) throws EmsInvalidTypeException, EmsDuplicatePersonException, EmsInvalidNumberOfDataException, EmsDuplicateLocationException {
+		String[] datos = dividirLineaData(linea);
+		switch (datos[0]) {
+			case "LOCALIZACION":
+				this.crearLocalizacion(datos);
+				break;
+			case "PERSONA":
+				aniadirPersona(datos);
+				break;
+			default:
+				throw new EmsInvalidTypeException();
 		}
 	}
 
